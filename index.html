@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CELESTIAL NIGHT - Admin Portal</title>
+    <style>
+        /* ページ全体の余白を消して背景色をポータルに合わせる */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a; /* ポータルと同じ背景色 */
+        }
+
+        /* 埋め込み枠のスタイル */
+        .portal-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ローディングアニメーション（任意） */
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #d4af37;
+            font-family: 'serif';
+            letter-spacing: 0.2em;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader">LOADING CELESTIAL NIGHT...</div>
+
+    <iframe 
+        src="https://script.google.com/macros/s/AKfycbxOnnUkklIpNwaRDDKpE8JKm_RowDc36P0RpD-z_9ZAnHbukcoeQ2pnRp8u9D1sVa8F/exec" 
+        class="portal-frame"
+        allow="clipboard-read; clipboard-write"
+    ></iframe>
+
+</body>
+</html>
