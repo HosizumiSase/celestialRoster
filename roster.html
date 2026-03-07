@@ -1,48 +1,448 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELESTIAL NIGHT - Roster</title>
-    <style>
-        /* ページ全体の余白を消して背景色をポータルに合わせる */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0f172a; /* ポータルと同じ背景色 */
-        }
-
-        /* 埋め込み枠のスタイル */
-        .portal-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* ローディングアニメーション（任意） */
-        .loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #d4af37;
-            font-family: 'serif';
-            letter-spacing: 0.2em;
-            z-index: -1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>CELESTIAL NIGHT - ROSTER</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSSは変更なしのため省略（そのままお使いください） */
+    body { background-color: #050608; color: #c5c6c7; font-family: 'Noto Sans JP', sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; }
+    #particles { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; }
+    .particle { position: absolute; bottom: -10px; width: 4px; height: 4px; background-color: #ffae00; box-shadow: 0 0 12px 2px #ff4500; border-radius: 50%; opacity: 0; animation: floatUp linear infinite; }
+    @keyframes floatUp { 0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; } 10% { opacity: 0.6; } 80% { opacity: 0.3; } 100% { transform: translateY(-100vh) translateX(50px) scale(0.2); opacity: 0; } }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(11, 12, 16, 0.5); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.5); border-radius: 4px; border: 1px solid rgba(0,0,0,0.5); }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.8); }
+    .app-container { display: flex; width: 100vw; height: 100vh; position: relative; z-index: 5; }
+    .right-main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; padding: 0 15px 10px 15px; box-sizing: border-box; }
+    .top-bar { display: flex; align-items: center; padding: 0 20px; height: 60px; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 10; box-sizing: border-box; }
+    .brand-logo { font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 2vw, 1.5rem); color: rgba(212, 175, 55, 0.8); letter-spacing: 0.2em; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; text-shadow: 0 0 10px rgba(212,175,55,0.3); margin: 0; }
+    .top-controls { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .toggle-btn { display: none; background: transparent; color: rgba(212, 175, 55, 0.8); border: 1px solid rgba(212, 175, 55, 0.5); padding: 4px 12px; font-size: 0.75em; border-radius: 4px; cursor: pointer; font-family: 'Cinzel', serif; transition: all 0.3s ease; }
+    .toggle-btn:hover { background: rgba(212, 175, 55, 0.2); color: #fff; border-color: #d4af37; }
+    .date-picker-wrap select { background-color: rgba(31, 40, 51, 0.5); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.3); padding: 4px 15px; font-size: 0.85em; border-radius: 20px; outline: none; cursor: pointer; }
+    .date-picker-wrap select option { background-color: #0b0c10; color: #fff; }
+    #status-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d4af37; font-family: 'Cinzel', serif; font-size: 1.2em; letter-spacing: 0.1em; z-index: 20; pointer-events: none; }
+    .view-wrapper { flex: 1; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.3s ease; overflow: hidden; justify-content: space-evenly; min-height: 0; padding: 10px 0; box-sizing: border-box; position: relative; z-index: 5; }
+    .roster-section { width: 100%; display: flex; justify-content: center; align-items: center; flex: 1; min-height: 0; }
+    .section-layout { display: flex; align-items: center; justify-content: center; gap: 2vw; width: 100%; max-width: 1200px; height: 100%; min-height: 0; }
+    .guest-layout { flex-direction: row-reverse; }
+    .preview-card { width: 25vh; max-width: 220px; min-width: 140px; flex-shrink: 0; aspect-ratio: 3 / 5; background-color: #11151a; border-radius: 8px; border: 2px solid rgba(212, 175, 55, 0.6); box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; overflow: hidden; transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; cursor: pointer; }
+    .preview-card.guest-mode { border-color: rgba(231, 76, 60, 0.6); }
+    .preview-card.locked { transform: scale(1.02); }
+    .preview-card:not(.guest-mode).locked { border-color: rgba(212, 175, 55, 1); box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); }
+    .preview-card.guest-mode.locked { border-color: rgba(231, 76, 60, 1); box-shadow: 0 0 25px rgba(231, 76, 60, 0.5); }
+    .expand-icon { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 14px; z-index: 30; border: 1px solid rgba(255,255,255,0.3); transition: background 0.3s, transform 0.3s; pointer-events: none; }
+    .preview-card:hover .expand-icon { background: rgba(212,175,55,0.8); transform: scale(1.1); }
+    .preview-placeholder { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.2); font-family: 'Cinzel', serif; font-size: 1.1em; letter-spacing: 0.1em; text-align: center; width: 100%; pointer-events: none; }
+    .preview-img { width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; }
+    .preview-info { position: absolute; bottom: 0; width: 100%; padding: 40% 12px 12px 12px; box-sizing: border-box; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; pointer-events: none; }
+    .preview-name { font-size: clamp(1.2rem, 2vh, 1.5rem); color: #fff; margin: 0 0 3px 0; letter-spacing: 1px; word-break: break-word; line-height: 1.1; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .preview-roles { color: #d4af37; font-size: clamp(0.7rem, 1.2vh, 0.8rem); font-family: 'Cinzel', serif; margin-bottom: 3px; }
+    .preview-desc { color: #ccc; font-size: clamp(0.75rem, 1.3vh, 0.85rem); line-height: 1.4; white-space: pre-wrap; max-height: 8vh; overflow-y: auto; pointer-events: auto; }
+    .x-link-btn { position: absolute; top: 12px; right: 45px; background: #1d9bf0; color: #fff; text-decoration: none; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; z-index: 40; border: 1px solid rgba(255,255,255,0.2); }
+    .x-link-btn:hover { background: #1a8cd8; transform: scale(1.05); }
+    .fade-enter { animation: fadeInScale 0.3s ease forwards; }
+    @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+    .vs-arena-divider { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; flex-shrink: 0; height: 6vh; user-select: none; }
+    .team-label { font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 1.5vh, 1.1rem); font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; }
+    @keyframes moveCastLeft { 0% { color: #d4af37; text-shadow: 0 0 15px rgba(212,175,55,0.8); transform: translateX(0); } 100% { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.8); transform: translateX(-30vw); } }
+    @keyframes moveGuestRight { 0% { color: #e74c3c; text-shadow: 0 0 15px rgba(231,76,60,0.8); transform: translateX(0); } 100% { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.8); transform: translateX(30vw); } }
+    .team-label.cast { animation: moveCastLeft 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 1.5s; margin-bottom: -5px; }
+    .team-label.guest { animation: moveGuestRight 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 1.5s; margin-top: -5px; }
+    .vs-line-wrap { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 900px; margin: 0 auto; }
+    .vs-line { flex: 1; height: 1px; border-radius: 2px; }
+    .left-line { background: linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.8) 100%); }
+    .right-line { background: linear-gradient(270deg, transparent 0%, rgba(231,76,60,0.8) 100%); }
+    .vs-mark { font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 3vh, 2rem); font-weight: 900; color: #fff; margin: 0 15px; animation: fadeOutVs 2s forwards; animation-delay: 1.5s; line-height: 1; }
+    @keyframes fadeOutVs { 0% { opacity: 1; transform: scale(1); text-shadow: 0 0 10px #ff4500, 0 0 20px #ffae00; } 100% { opacity: 0; transform: scale(0.9); } }
+    .roster-grid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1vh; flex: 1; min-width: 0; min-height: 0; }
+    .roster-row { display: flex; justify-content: center; gap: 0.6vw; width: 100%; flex-wrap: nowrap; min-height: 0; }
+    .guest-container-wrap { display: flex; justify-content: center; gap: 1vw; flex: 1; align-items: stretch; min-width: 0; min-height: 0; }
+    .guest-subgrid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1vh; flex: 1; min-width: 0; min-height: 0; }
+    .guest-spacer { width: 1px; background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%); margin: 0 0.5vw; flex-shrink: 0; align-self: stretch; }
+    #all-casts-view { justify-content: flex-start; padding-top: 20px; padding-bottom: 20px; overflow: hidden; width: 100%; height: 100%; box-sizing: border-box; }
+    #all-casts-view .section-layout { flex: 1; min-height: 0; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start !important; justify-content: center !important; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; gap: 40px !important; box-sizing: border-box; }
+    #all-casts-view .preview-card { flex: 0 0 280px !important; width: 280px !important; height: 466px !important; max-width: none !important; min-width: 0 !important; position: relative; margin: 0; }
+    #all-casts-view .preview-name { font-size: 1.6rem; }
+    #all-casts-view .preview-desc { font-size: 0.95rem; max-height: 180px; }
+    .wrap-container { flex: 1 1 auto; min-width: 0; height: 100%; display: grid !important; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; align-content: start; overflow-y: auto; padding: 0 10px 60px 10px; box-sizing: border-box; }
+    .wrap-container .card { width: 100%; height: auto; aspect-ratio: 3 / 5; max-width: none; min-width: 0; flex: none; margin: 0; }
+    @keyframes slideUpFade { 0% { opacity: 0; transform: translateY(20px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    .card { flex: 1 1 0; min-width: 0; max-width: clamp(70px, 13vh, 120px); aspect-ratio: 3 / 5; height: auto; position: relative; background-color: #11151a; border-radius: 4px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.8); cursor: pointer; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease; border: 1px solid rgba(212, 175, 55, 0.1); text-align: left; animation: slideUpFade 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .card.guest-m { border-color: rgba(231, 76, 60, 0.3); }
+    .card.guest-m:hover, .card.guest-m.focus-active { border-color: rgba(231, 76, 60, 0.8); transform: translateY(-5px) scale(1.05); z-index:10;}
+    .card.guest-c { border-color: rgba(52, 152, 219, 0.3); }
+    .card.guest-c:hover, .card.guest-c.focus-active { border-color: rgba(52, 152, 219, 0.8); transform: translateY(-5px) scale(1.05); z-index:10;}
+    .card:not(.guest-m):not(.guest-c):hover, .card:not(.guest-m):not(.guest-c).focus-active { border-color: rgba(255, 174, 0, 0.8); transform: translateY(-5px) scale(1.05); z-index:10;}
+    .top-badge { position: absolute; top: 3px; font-size: clamp(0.3em, 0.8vh, 0.5em); font-weight: bold; padding: 1px 3px; border-radius: 2px; z-index: 15; backdrop-filter: blur(4px); text-shadow: 0 1px 2px rgba(0,0,0,0.8); white-space: nowrap; }
+    .tl-badge { left: 3px; } .tr-badge { right: 3px; }
+    .m-badge { background: rgba(231, 76, 60, 0.8); border: 1px solid rgba(231, 76, 60, 0.5); color: #fff; }
+    .c-badge { background: rgba(52, 152, 219, 0.8); border: 1px solid rgba(52, 152, 219, 0.5); color: #fff; }
+    .triangle-badge { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(243, 156, 18, 0.3); color: #f39c12; opacity: 0.8; }
+    .status-triangle .card-img { opacity: 0.6; filter: grayscale(50%); }
+    .card-img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.5s ease; }
+    .card:hover .card-img, .card.focus-active .card-img { transform: scale(1.08); }
+    .card-info { position: absolute; bottom: 0; width: 100%; padding: 30% 4% 4% 4%; box-sizing: border-box; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%); }
+    .card:hover .card-info, .card.focus-active .card-info { background: linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 60%, transparent 100%); }
+    .name { font-size: clamp(0.45em, 1.2vh, 0.8em); font-weight: bold; color: #fff; margin: 0; white-space: normal; word-break: break-word; line-height: 1.1; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .name-long { font-size: clamp(0.4em, 1.1vh, 0.7em); }
+    .name-xlong { font-size: clamp(0.35em, 1vh, 0.6em); }
+    @media (max-width: 768px) {
+      body { overflow-y: auto !important; height: auto !important; min-height: 100vh; }
+      .app-container { height: auto !important; min-height: 100vh; display: block; }
+      .right-main { height: auto !important; min-height: 100vh; display: block; overflow: visible; padding-bottom: 30px; }
+      .view-wrapper { height: auto !important; min-height: 100vh; overflow: visible !important; justify-content: flex-start !important; padding-top: 20px !important; display: flex; flex-direction: column; }
+      .roster-section { display: block; height: auto; margin-top: 10px; }
+      .section-layout { display: flex !important; flex-direction: column; width: 100%; gap: 0; align-items: center; justify-content: flex-start !important; overflow: visible !important; }
+      .top-bar { height: auto; flex-direction: column; gap: 10px; padding: 15px; justify-content: center; }
+      .brand-logo { position: static; transform: none; text-align: center; }
+      .top-controls { margin-left: 0; justify-content: center; width: 100%; }
+      .preview-card { display: none !important; }
+      @keyframes goldToWhiteMobile { 0% { color: #d4af37; text-shadow: 0 0 15px rgba(212,175,55,0.8); } 100% { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.8); } }
+      @keyframes redToWhiteMobile { 0% { color: #e74c3c; text-shadow: 0 0 15px rgba(231,76,60,0.8); } 100% { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.8); } }
+      .team-label.cast { animation: goldToWhiteMobile 2s forwards !important; animation-delay: 1.5s !important; transform: none !important; }
+      .team-label.guest { animation: redToWhiteMobile 2s forwards !important; animation-delay: 1.5s !important; transform: none !important; }
+      .roster-grid { gap: 4px; }
+      .roster-row { flex-wrap: nowrap; gap: 4px; width: 100%; justify-content: center; flex-direction: row; }
+      .guest-container-wrap { flex-direction: column; gap: 8px; width: 100%; align-items: stretch; }
+      .guest-subgrid { flex-direction: row; flex-wrap: nowrap; gap: 4px; width: 100%; justify-content: center; }
+      .guest-spacer { display: none !important; }
+      .card { flex: 1 1 0; min-width: 0; max-width: 18%; border-radius: 3px; }
+      .card-info { padding: 25% 3% 3% 3%; }
+      .name { font-size: clamp(0.4rem, 2vw, 0.65rem); line-height: 1; }
+      .name-long { font-size: clamp(0.35rem, 1.8vw, 0.6rem); }
+      .name-xlong { font-size: clamp(0.3rem, 1.6vw, 0.55rem); }
+      .top-badge { font-size: 0.35rem; padding: 1px 2px; top: 2px; }
+      .tl-badge { left: 2px; } .tr-badge { right: 2px; }
+      .vs-arena-divider { margin: 10px 0; height: auto; }
+      #all-casts-view { overflow-y: visible !important; padding-top: 10px; }
+      .wrap-container { display: grid !important; width: 100% !important; grid-template-columns: repeat(3, 1fr) !important; gap: 3vw !important; padding: 10px 5vw !important; overflow-y: visible !important; height: auto !important; box-sizing: border-box; }
+      .wrap-container .card { width: 100% !important; max-width: none !important; margin: 0 !important; flex: none !important; }
+    }
+    .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+    .lightbox.active { display: flex; } .lightbox.show { opacity: 1; }
+    .lightbox-content { position: relative; width: 90vw; max-width: 450px; max-height: 90vh; background: #0b0c10; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.2); transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .lightbox.show .lightbox-content { transform: scale(1); }
+    .lightbox-close { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: 1px solid #555; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: flex; justify-content: center; align-items: center; }
+    .lightbox-close:hover { background: #d4af37; color: #000; border-color: #d4af37; }
+    .lightbox-img-wrap { width: 100%; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 1; min-height: 200px; }
+    .lightbox-img { width: 100%; max-height: 55vh; object-fit: contain; }
+    .lightbox-info { padding: 20px; text-align: left; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; }
+    .lightbox-name { font-size: 1.8em; color: #fff; margin: 0 0 5px 0; letter-spacing: 1px; word-break: break-word; }
+    .lightbox-roles { color: #d4af37; font-size: 0.9em; font-family: 'Cinzel', serif; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    .lightbox-desc { color: #ccc; font-size: 1em; line-height: 1.6; white-space: pre-wrap; margin-bottom: 15px; }
+  </style>
 </head>
 <body>
 
-    <div class="loader">LOADING CELESTIAL NIGHT...</div>
+  <div id="particles"></div>
 
-    <iframe 
-        src="https://script.google.com/macros/s/AKfycbxOnnUkklIpNwaRDDKpE8JKm_RowDc36P0RpD-z_9ZAnHbukcoeQ2pnRp8u9D1sVa8F/exec" 
-        class="portal-frame"
-        allow="clipboard-read; clipboard-write"
-    ></iframe>
+  <div class="app-container">
+    <div class="right-main">
+      <header class="top-bar">
+        <div class="brand-logo">CELESTIAL NIGHT</div>
+        <div class="top-controls">
+          <button id="toggle-mode-btn" class="toggle-btn" onclick="toggleMode()">ALL CASTS</button>
+          <div class="date-picker-wrap">
+            <select id="dateSelect" onchange="loadRoster()">
+              <option value="">読込中...</option>
+            </select>
+          </div>
+        </div>
+      </header>
+      <div id="status-overlay">CONNECTION ESTABLISHED...</div>
+      <div id="content" class="view-wrapper" style="display: none;">
+        <div class="roster-section">
+          <div class="section-layout">
+            <div id="cast-preview" class="preview-card">
+              <div class="preview-placeholder">HOVER<br>TO FOCUS</div>
+            </div>
+            <div id="cast-container" class="roster-grid"></div>
+          </div>
+        </div>
+        <div class="vs-arena-divider">
+          <div class="team-label cast">CAST</div>
+          <div class="vs-line-wrap"><div class="vs-line left-line"></div><div class="vs-mark">VS</div><div class="vs-line right-line"></div></div>
+          <div class="team-label guest">GUEST</div>
+        </div>
+        <div class="roster-section">
+          <div class="section-layout guest-layout">
+            <div id="guest-preview" class="preview-card guest-mode">
+              <div class="preview-placeholder">HOVER<br>TO FOCUS</div>
+            </div>
+            <div class="guest-container-wrap">
+              <div id="guest-m-container" class="guest-subgrid"></div>
+              <div class="guest-spacer" id="guest-spacer-line" style="display: none;"></div>
+              <div id="guest-c-container" class="guest-subgrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="all-casts-view" class="view-wrapper" style="display: none;">
+        <div class="team-label cast" style="text-align: center; margin-bottom: 20px; animation: none; color: #fff; text-shadow: 0 0 15px rgba(212,175,55,0.8);">ALL CASTS</div>
+        <div class="section-layout">
+          <div id="all-preview" class="preview-card">
+            <div class="preview-placeholder">HOVER<br>TO FOCUS</div>
+          </div>
+          <div id="all-casts-container" class="wrap-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+      <div class="lightbox-img-wrap"><img id="lb-img" class="lightbox-img" src="" alt=""></div>
+      <div class="lightbox-info">
+        <div id="lb-badges" style="margin-bottom:5px;"></div>
+        <h2 id="lb-name" class="lightbox-name"></h2>
+        <div id="lb-roles" class="lightbox-roles"></div>
+        <div id="lb-desc" class="lightbox-desc"></div>
+        <div id="lb-x-link-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ★ GASのURLを定数として定義
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxOnnUkklIpNwaRDDKpE8JKm_RowDc36P0RpD-z_9ZAnHbukcoeQ2pnRp8u9D1sVa8F/exec";
+
+    let currentMode = 'event'; 
+    let cachedAllCasts = null; 
+    let previewLocks = { 'cast-preview': null, 'guest-preview': null, 'all-preview': null };
+
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for(let i=0; i<30; i++) {
+        let p = document.createElement('div'); p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw'; p.style.animationDuration = (Math.random() * 4 + 4) + 's'; p.style.animationDelay = (Math.random() * 5) + 's'; p.style.transform = 'scale(' + (Math.random() * 0.5 + 0.5) + ')';
+        container.appendChild(p);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      createParticles();
+      
+      // ★ google.script.run の代わりに fetch を使用して日付リストを取得
+      fetch(`${GAS_URL}?action=getConfirmedDates`)
+        .then(res => res.json())
+        .then(dates => {
+          populateDropdown(dates);
+        })
+        .catch(err => {
+          console.error("日付リストの取得に失敗しました", err);
+          document.getElementById('status-overlay').innerText = "CONNECTION ERROR...";
+        });
+      
+      // ★ fetch を使用して全キャストを取得
+      fetch(`${GAS_URL}?action=getAllCasts`)
+        .then(res => res.json())
+        .then(casts => {
+          cachedAllCasts = casts; 
+          document.getElementById('toggle-mode-btn').style.display = 'inline-block'; 
+        })
+        .catch(err => console.error("ALL CASTSの取得に失敗しました", err));
+    });
+
+    function populateDropdown(dates) {
+      const select = document.getElementById('dateSelect'); select.innerHTML = ''; 
+      if (!dates || dates.length === 0) { select.innerHTML = '<option value="">予定なし</option>'; return; }
+      dates.forEach(function(dateStr) { const opt = document.createElement('option'); opt.value = dateStr; opt.textContent = dateStr; select.appendChild(opt); });
+      select.value = dates[dates.length - 1];
+      loadRoster();
+    }
+
+    function resetLocks() {
+      previewLocks = { 'cast-preview': null, 'guest-preview': null, 'all-preview': null };
+      ['cast-preview', 'guest-preview', 'all-preview'].forEach(function(id) {
+        let el = document.getElementById(id);
+        if(el) {
+          el.classList.remove('locked');
+          el.innerHTML = '<div class="preview-placeholder">HOVER<br>TO FOCUS</div>';
+          el.onclick = null; 
+        }
+      });
+      document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('focus-active'); });
+    }
+
+    function toggleMode() {
+      resetLocks();
+      if (currentMode === 'event') {
+        currentMode = 'all'; document.getElementById('toggle-mode-btn').innerText = 'EVENT'; document.getElementById('dateSelect').style.visibility = 'hidden';
+        document.getElementById('content').style.display = 'none';
+        const allView = document.getElementById('all-casts-view'); allView.style.display = 'flex';
+        renderAllCasts(cachedAllCasts); setTimeout(function() { allView.style.opacity = '1'; }, 10);
+      } else {
+        currentMode = 'event'; document.getElementById('toggle-mode-btn').innerText = 'ALL'; document.getElementById('dateSelect').style.visibility = 'visible';
+        document.getElementById('all-casts-view').style.display = 'none';
+        const eventView = document.getElementById('content'); eventView.style.display = 'flex'; setTimeout(function() { eventView.style.opacity = '1'; }, 10);
+      }
+    }
+
+    function renderAllCasts(casts) {
+      const container = document.getElementById('all-casts-container'); container.innerHTML = '';
+      if (!casts || casts.length === 0) return;
+      
+      let sortedCasts = [].concat(casts).sort(function(a, b) { 
+        if (a.name.toLowerCase() === 'shiaru') return -1; 
+        if (b.name.toLowerCase() === 'shiaru') return 1; 
+        return a.name.localeCompare(b.name); 
+      });
+
+      sortedCasts.forEach(function(cast, index) { 
+        container.appendChild(createCard(cast, true, index, true, 'all')); 
+      });
+    }
+
+    // ★ fetch を使用して指定日のロスターを取得
+    function loadRoster() {
+      const dateVal = document.getElementById('dateSelect').value; if (!dateVal) return;
+      if (currentMode === 'all') { currentMode = 'event'; document.getElementById('toggle-mode-btn').innerText = 'ALL'; document.getElementById('dateSelect').style.visibility = 'visible'; document.getElementById('all-casts-view').style.display = 'none'; }
+      
+      resetLocks();
+      document.getElementById('status-overlay').style.display = 'block'; document.getElementById('content').style.opacity = '0';
+      
+      fetch(`${GAS_URL}?action=getEventRoster&date=${encodeURIComponent(dateVal)}`)
+        .then(res => res.json())
+        .then(data => {
+          renderRoster(data);
+        })
+        .catch(err => {
+          console.error("ロスターの取得に失敗しました", err);
+          document.getElementById('status-overlay').innerText = "CONNECTION ERROR...";
+        });
+    }
+
+    function renderTwoRows(container, items, isCast, showRole, targetGroup) {
+      container.innerHTML = '';
+      if(!items || items.length === 0) return;
+      if (window.innerWidth <= 768 && !isCast) {
+        items.forEach(function(item, i) { container.appendChild(createCard(item, isCast, i, showRole, targetGroup)); });
+        return;
+      }
+      const half = Math.ceil(items.length / 2);
+      const row1 = document.createElement('div'); row1.className = 'roster-row';
+      const row2 = document.createElement('div'); row2.className = 'roster-row';
+      items.forEach(function(item, i) { 
+        const card = createCard(item, isCast, i, showRole, targetGroup); 
+        if (i < half) row1.appendChild(card); else row2.appendChild(card); 
+      });
+      container.appendChild(row1); if (items.length > 1) container.appendChild(row2);
+    }
+
+    function renderRoster(data) {
+      document.getElementById('status-overlay').style.display = 'none';
+      document.getElementById('content').style.display = 'flex';
+      setTimeout(function() { document.getElementById('content').style.opacity = '1'; }, 50);
+      data.casts.sort(function(a, b) { if (a.name.toLowerCase() === 'shiaru') return -1; if (b.name.toLowerCase() === 'shiaru') return 1; if (a.status === '⭕' && b.status === '🔺') return -1; if (a.status === '🔺' && b.status === '⭕') return 1; return a.name.localeCompare(b.name); });
+      renderTwoRows(document.getElementById('cast-container'), data.casts, true, false, 'cast');
+      let guestM = data.guests.filter(function(g) { return g.attribute === 'M'; }).sort(function(a, b) { return (parseInt(a.number.replace(/\D/g,''))||0) - (parseInt(b.number.replace(/\D/g,''))||0); });
+      let guestC = data.guests.filter(function(g) { return g.attribute === 'C'; }).sort(function(a, b) { return (parseInt(a.number.replace(/\D/g,''))||0) - (parseInt(b.number.replace(/\D/g,''))||0); });
+      renderTwoRows(document.getElementById('guest-m-container'), guestM, false, false, 'guest');
+      renderTwoRows(document.getElementById('guest-c-container'), guestC, false, false, 'guest');
+      document.getElementById('guest-spacer-line').style.display = (guestM.length && guestC.length) ? 'block' : 'none';
+    }
+
+    function unlockPreview(previewId) {
+      previewLocks[previewId] = null;
+      let el = document.getElementById(previewId);
+      if(el) {
+        el.classList.remove('locked');
+        el.innerHTML = '<div class="preview-placeholder">HOVER<br>TO FOCUS</div>';
+        el.onclick = null; 
+        let section = el.closest('.section-layout');
+        if(section) section.querySelectorAll('.card').forEach(function(c) { c.classList.remove('focus-active'); });
+      }
+    }
+
+    function updatePreview(person, badgesHtml, rolesHtml, descText, targetId) {
+      const container = document.getElementById(targetId); if(!container) return;
+      const xLinkHtml = person.xLink ? '<a href="' + person.xLink + '" target="_blank" class="x-link-btn">X</a>' : '';
+      const expandIconHtml = '<div class="expand-icon">🔍</div>';
+      let nameClass = 'preview-name';
+      if(person.name.length >= 15) nameClass += ' name-xlong'; else if(person.name.length >= 9) nameClass += ' name-long';
+      container.innerHTML = expandIconHtml + xLinkHtml +
+        '<div style="position:absolute; top:10px; left:10px; z-index:15;">' + badgesHtml + '</div>' +
+        '<img src="' + (person.imageUrl || 'https://via.placeholder.com/240x400/11151a/d4af37?text=No+Image') + '" class="preview-img fade-enter" />' +
+        '<div class="preview-info fade-enter">' +
+          (rolesHtml ? '<div class="preview-roles">' + rolesHtml + '</div>' : '') +
+          '<h3 class="' + nameClass + '" style="margin:0 0 5px 0;">' + person.name + '</h3>' +
+          '<div class="preview-desc">' + descText + '</div>' +
+        '</div>';
+      container.onclick = function(e) {
+        if (e.target.closest('a')) return; 
+        openLightbox(person, badgesHtml, rolesHtml, descText);
+      };
+    }
+
+    function openLightbox(person, badges, roles, desc) {
+      document.getElementById('lb-img').src = person.imageUrl || '';
+      document.getElementById('lb-name').innerText = person.name;
+      document.getElementById('lb-badges').innerHTML = badges;
+      document.getElementById('lb-roles').innerHTML = roles;
+      document.getElementById('lb-desc').innerHTML = desc; 
+      const xWrap = document.getElementById('lb-x-link-wrap');
+      xWrap.innerHTML = person.xLink ? '<a href="' + person.xLink + '" target="_blank" class="x-link-btn" style="position:static; margin-top:10px;">X (Twitter)</a>' : '';
+      const lb = document.getElementById('lightbox'); lb.classList.add('active'); setTimeout(function() { lb.classList.add('show'); }, 10);
+    }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); setTimeout(function() { document.getElementById('lightbox').classList.remove('active'); }, 300); }
+
+    function createCard(person, isCast, index, showRole, targetGroup) {
+      const card = document.createElement('div'); card.className = 'card'; card.style.animationDelay = (index * 0.05) + "s";
+      let tl = '', tr = '';
+      if (isCast) {
+        if (showRole && person.roles.length) {
+          let r = person.roles[0], bg = 'rgba(212,175,55,0.8)';
+          if (r.includes('天夜')) bg = 'rgba(52,152,219,0.8)'; else if (r.includes('天国')) bg = 'rgba(225,29,72,0.8)'; else if (r.toLowerCase().includes('owner')) bg = 'rgba(155,89,182,0.8)';
+          tl = '<div class="top-badge tl-badge" style="background:' + bg + '">' + r + '</div>';
+        }
+        if (person.status === '🔺') { tr = '<div class="top-badge tr-badge triangle-badge">🔺 Sub</div>'; card.classList.add('status-triangle'); }
+      } else {
+        if (person.attribute === 'M') { card.classList.add('guest-m'); tl = '<div class="top-badge tl-badge m-badge">M側</div>'; }
+        else if (person.attribute === 'C') { card.classList.add('guest-c'); tl = '<div class="top-badge tl-badge c-badge">C側</div>'; }
+      }
+      let nCls = 'name'; if (person.name.length >= 15) nCls += ' name-xlong'; else if (person.name.length >= 9) nCls += ' name-long';
+      card.innerHTML = tl + tr + '<img src="' + (person.imageUrl||'') + '" class="card-img"><div class="card-info"><h3 class="' + nCls + '">' + person.name + '</h3></div>';
+      let rH = isCast ? person.roles.join(' / ') : '';
+      let sT = isCast ? person.description : 'From: ' + person.castName + '<br>[' + person.number + ']<br>' + person.description;
+      card.onmouseenter = function() { 
+        if (window.innerWidth > 768) { 
+          let previewId = targetGroup === 'guest' ? 'guest-preview' : (targetGroup === 'all' ? 'all-preview' : 'cast-preview');
+          if (previewLocks[previewId]) return;
+          updatePreview(person, tl + tr, rH, sT, previewId); 
+          let section = document.getElementById(previewId).closest('.section-layout');
+          if(section) {
+            section.querySelectorAll('.card').forEach(function(c) { c.classList.remove('focus-active'); }); 
+            card.classList.add('focus-active'); 
+          }
+        } 
+      };
+      card.onclick = function() { 
+        if (window.innerWidth <= 768) { 
+          openLightbox(person, tl+tr, rH, sT); 
+        } 
+        else { 
+          let previewId = targetGroup === 'guest' ? 'guest-preview' : (targetGroup === 'all' ? 'all-preview' : 'cast-preview');
+          if (previewLocks[previewId] === person.name) {
+            unlockPreview(previewId);
+          } else {
+            previewLocks[previewId] = person.name;
+            updatePreview(person, tl + tr, rH, sT, previewId);
+            let el = document.getElementById(previewId);
+            el.classList.add('locked');
+            let section = el.closest('.section-layout');
+            if(section) {
+              section.querySelectorAll('.card').forEach(function(c) { c.classList.remove('focus-active'); }); 
+              card.classList.add('focus-active'); 
+            }
+          }
+        }
+      };
+      return card;
+    }
+  </script>
 </body>
 </html>
